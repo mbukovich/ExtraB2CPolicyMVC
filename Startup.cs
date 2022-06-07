@@ -49,41 +49,22 @@ namespace ExtraB2CPolicyMVC
             services.AddOptions();
             services.Configure<OpenIdConnectOptions>(Configuration.GetSection("AzureAdB2C"));
 
-            services.Configure<OpenIdConnectOptions>(OpenIdConnectDefaults.AuthenticationScheme, options =>
+            /*services.Configure<OpenIdConnectOptions>(OpenIdConnectDefaults.AuthenticationScheme, options =>
             {
-                /*options.Events.OnRedirectToIdentityProvider = context =>
-                {
-                    var policyID = context.Properties.Items.FirstOrDefault(x => x.Key == "policy").Value;
-
-                    if (policyID == "B2C_1A_DEMO_CHANGESIGNINNAME")
-                    {
-                        options.MetadataAddress = "https://markstestorganization1.b2clogin.com/markstestorganization1.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_DEMO_CHANGESIGNINNAME";
-                    }
-                    else if (policyID == "B2C_1_signupsignin1")
-                    {
-                        options.MetadataAddress = "https://markstestorganization1.b2clogin.com/markstestorganization1.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1_signupsignin1";
-                    }
-                    else if (policyID == "B2C_1_PasswordReset1")
-                    {
-                        options.MetadataAddress = "https://markstestorganization1.b2clogin.com/markstestorganization1.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1_PasswordReset1";
-                    }
-                    else if (policyID == "B2C_1_editProfileTest1")
-                    {
-                        options.MetadataAddress = "https://markstestorganization1.b2clogin.com/markstestorganization1.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1_editProfileTest1";
-                    }
-                    return Task.CompletedTask;
-                };*/
-                
-            });
+                *//*options.Events ??= new OpenIdConnectEvents();
+                options.Events.OnRedirectToIdentityProvider += OnRedirectToIdentityProviderFunc;
+                options.Events.OnTokenResponseReceived += OnTokenResponseReceivedFunc;
+                options.Events.OnMessageReceived += OnMessageReceivedFunc;*//*
+            });*/
 
             // Create another authentication scheme to handle extra custom policy
             services.AddAuthentication()
                 .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAdB2C2"), "B2C2", "cookiesB2C");
-            
+
             services.Configure<OpenIdConnectOptions>("B2C2", options =>
                 {
                     // Configuration.Bind("AzureAdB2C", options);
-                    options.CallbackPath = "/signin-oidc-custom";
+                    // options.CallbackPath = "/signin-oidc-custom";
                     options.MetadataAddress = "https://markstestorganization1.b2clogin.com/markstestorganization1.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_DEMO_CHANGESIGNINNAME";
                 });
 
@@ -131,6 +112,44 @@ namespace ExtraB2CPolicyMVC
                 // Add endpoints for Razor pages
                 endpoints.MapRazorPages();
             });
+        }
+
+        private async Task OnRedirectToIdentityProviderFunc(RedirectContext context)
+        {
+            // var policyID = context.Properties.Items.FirstOrDefault(x => x.Key == "policy").Value;
+            var issuerAddress = context.ProtocolMessage.IssuerAddress;
+
+            if (issuerAddress == "https://markstestorganization1.b2clogin.com/markstestorganization1.onmicrosoft.com/b2c_1a_demo_changesigninname/oauth2/v2.0/authorize")
+            {
+                context.Options.MetadataAddress = "https://markstestorganization1.b2clogin.com/markstestorganization1.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_DEMO_CHANGESIGNINNAME";
+                // context.Options.ConfigurationManager.MetadataAddress = "https://markstestorganization1.b2clogin.com/markstestorganization1.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_DEMO_CHANGESIGNINNAME";
+                context.Options.Authority = "https://markstestorganization1.b2clogin.com/markstestorganization1.onmicrosoft.com/B2C_1A_DEMO_CHANGESIGNINNAME/v2.0";
+                // options.MetadataAddress = "https://markstestorganization1.b2clogin.com/markstestorganization1.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_DEMO_CHANGESIGNINNAME";
+                var metaDataAddressProperty = context.Options.ConfigurationManager.GetType().GetProperties().FirstOrDefault(x => x.Name.Equals("MetadataAddress"));
+                if (metaDataAddressProperty != null)
+                {
+                    metaDataAddressProperty.SetValue(context.Options.ConfigurationManager, "https://markstestorganization1.b2clogin.com/markstestorganization1.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_DEMO_CHANGESIGNINNAME");
+                }
+                /*if (context.Options.ConfigurationManager.GetType().GetProperty("MetadataAddress") != null) 
+                {
+                    context.Options.ConfigurationManager.MetadataAddress = "https://markstestorganization1.b2clogin.com/markstestorganization1.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_DEMO_CHANGESIGNINNAME";
+                }*/
+            }
+
+            await Task.CompletedTask.ConfigureAwait(false);
+        }
+
+        private async Task OnTokenResponseReceivedFunc(TokenResponseReceivedContext context)
+        {
+            var c = context;
+
+            await Task.CompletedTask.ConfigureAwait(false);
+        }
+
+        private async Task OnMessageReceivedFunc(MessageReceivedContext context)
+        {
+            var c = context;
+            await Task.CompletedTask.ConfigureAwait(false);
         }
     }
 }

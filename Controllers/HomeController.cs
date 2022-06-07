@@ -40,7 +40,6 @@ namespace ExtraB2CPolicyMVC.Controllers
         [Authorize]
         public IActionResult EditEmail()
         {
-            // scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
             var redirectUrl = Url.Content("~/");
             var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
             properties.Items["policy"] = "B2C_1A_DEMO_CHANGESIGNINNAME";
