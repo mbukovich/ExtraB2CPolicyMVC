@@ -43,7 +43,7 @@ namespace ExtraB2CPolicyMVC.Controllers
             var redirectUrl = Url.Content("~/");
             var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
             properties.Items["policy"] = "B2C_1A_DEMO_CHANGESIGNINNAME";
-            return Challenge(properties, "B2C2");
+            return Challenge(properties, "B2CEditEmail");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

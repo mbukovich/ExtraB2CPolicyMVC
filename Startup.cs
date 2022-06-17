@@ -51,12 +51,10 @@ namespace ExtraB2CPolicyMVC
 
             // Create another authentication scheme to handle extra custom policy
             services.AddAuthentication()
-                .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAdB2C2"), "B2C2", "cookiesB2C");
+                .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAdB2CEditEmail"), "B2CEditEmail", "cookiesB2C");
 
-            services.Configure<OpenIdConnectOptions>("B2C2", options =>
+            services.Configure<OpenIdConnectOptions>("B2CEditEmail", options =>
                 {
-                    // Configuration.Bind("AzureAdB2C", options);
-                    // options.CallbackPath = "/signin-oidc-custom";
                     options.MetadataAddress = "https://markstestorganization1.b2clogin.com/markstestorganization1.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_DEMO_CHANGESIGNINNAME";
                 });
         }
